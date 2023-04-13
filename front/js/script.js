@@ -1,25 +1,37 @@
-let url ="http://localhost:3000/api/products";
+// Récupération des données de l'API
+function apiFetch(){
+    let url ="http://localhost:3000/api/products";
+    fetch(url)
+    .then(products => products.json())
+    .then(data => genererProducts(data));
+}
+apiFetch();
 
-// Récupération des pièces depuis le fichier JSON
-const reponse =  fetch('../../back/models/Products.js')
-// .then(products => products.json());
-const products = reponse.json();
 
-function genererProducts(products){
-    for (let i = 0; i < products.length; i++) {
+// Fonction pour afficher tous les produits de l'API
+function genererProducts(data){
+    for (let i = 0; i < data.length; i++) {
 
-        const article = products[0];
-        const imageElement = document.createElement("img");
-        imageElement.src = article.imageUrl;
-        const nomElement = document.createElement("h3");
-        nomElement.innerText = article.name;
-        const descriptionElement = document.createElement("p");
-        descriptionElement.innerText = article.description;
+    const fiche = data[i];
 
-        const sectionItems = document.querySelector('#items');
-        sectionItems.appendChild(imageElement);
-        sectionItems.appendChild(nomElement);
-        sectionItems.appendChild(descriptionElement);
+    const lienElement = document.createElement("a");
+    lienElement.href = `./product.html?${fiche._id}`;
+    const articleElement = document.createElement("article");
+    const imageElement = document.createElement("img");
+    imageElement.src = fiche.imageUrl;
+    imageElement.alt = fiche.altTxt;
+    const nomElement = document.createElement("h3");
+    nomElement.innerText = fiche.name;
+    const descriptionElement = document.createElement("p");
+    descriptionElement.innerText = fiche.description;
 
+    const sectionItems = document.querySelector('#items');
+    sectionItems.appendChild(lienElement)
+    lienElement.appendChild(articleElement);
+    articleElement.appendChild(imageElement);
+    articleElement.appendChild(nomElement);
+    articleElement.appendChild(descriptionElement);
     }
 }
+
+
