@@ -7,13 +7,12 @@ function apiFetch(){
 }
 apiFetch();
 
-
 // Fonction pour afficher tous les produits de l'API
 function genererProducts(data){
     for (let i = 0; i < data.length; i++) {
 
     const fiche = data[i];
-
+  
     const lienElement = document.createElement("a");
     lienElement.href = `./product.html?${fiche._id}`;
     const articleElement = document.createElement("article");

@@ -33,77 +33,44 @@ function genererProduct(promise){
     const sectionColors = document.getElementById("colors");
     sectionColors.appendChild(colorsElement);
     }
-
-
-// // comment ajouter différent produit dans le LS ?
-//         if(localStorage.setItem("produit") != localStorage.setItem("produit"))
-//         localStorage.setItem.push;
-
-//     });
 };
 
-// function savePanier(panier) {
-//     const ajoutPanier = document.getElementById("addToCart");
-//     ajoutPanier.addEventListener("click", () => {
-//         const couleur = document.getElementById("colors").value;
-//         const quantity = document.getElementById("quantity").value;
-//         const panier = {"id" : produit, "couleur" : couleur, "quantité" : quantity};
-//         localStorage.setItem("panier", JSON.stringify(panier));
-//     })
-// };
+//  Solution par Thomas
 
-let getLs = JSON.parse(localStorage.getItem("panier"));
+const ajoutPanier = document.getElementById("addToCart");
+ajoutPanier.addEventListener("click", (addPanier));
 
 function addPanier() {
     const couleur = document.getElementById("colors").value;
     const quantity = document.getElementById("quantity").value;
-    const panier = {id : produit, couleur : couleur, quantité : quantity};
-    let getLs = JSON.parse(localStorage.getItem("panier"));
-    getLs.forEach((element, key) => {
-        if(element.id === produit && element.couleur === couleur) {
-            // getLs{key}.quantité = element.quantité + quantity
-            alert("oui");
-        }else{
+    if (quantity < 1 || quantity > 100) {
+        alert("Veuillez choisir un  nombre entre 1 et 100 svp");
+    } if (couleur === "") {
+        alert("Veuillez choisir une couleur svp");
+    } else {
+    const panier = {id : produit, couleur : couleur, quantity : parseInt(quantity)};
+
+    let getLs = JSON.parse(localStorage.getItem("panier")) || [];
+
+    let update = false;
+    if (getLs) {
+        getLs.forEach((element, key) => {
+            if (element.id === produit && element.couleur === couleur) {
+                getLs[key].quantity = parseInt(element.quantity) + parseInt(quantity);
+                localStorage.setItem("panier", JSON.stringify(getLs));
+                update = true;
+            }
+            });
+            if (!update) {
+                getLs.push(panier);
+                localStorage.setItem("panier", JSON.stringify(getLs));
+            }
+        }
+        else {
+            getLs = [];
             localStorage.setItem("panier", JSON.stringify(panier));
         }
-
-    });
-    if(panier.id == panier.id) {
-        panier.quantité += quantity;
-    }else{
-        panier.push;
     }
-};
+}; 
 
 
-    const ajoutPanier = document.getElementById("addToCart");
-    ajoutPanier.addEventListener("click", (addPanier));
-
-
-
-
-// function getPanier() {
-//    let panier = localStorage.getItem("panier");
-//    if( panier == null){
-//         return [];
-//    } else {
-//     return JSON.parse(panier);
-//    }
-// };
-
-// function addPanier(produit) {
-//     let panier = getPanier();
-//     let foundProduit = panier.find(p => p.id == panier.id);
-//     if(foundProduit != undefined) {
-//         panier.quantity++;
-//     }else{
-//         panier.quantity =1;
-//         panier.push(produit);
-//     }
-//     savePanier(panier);
-// };
-
-// addPanier();
-
-
-// console.log()
