@@ -3,17 +3,17 @@
 // Récupération du LS
 var getLs = JSON.parse(localStorage.getItem("panier")); // Fonction pour récupérer les produits du LS dans l'API
 
-console.log(getLs);
+console.log(getLs); // function apiFetch(){
 
-function apiFetch() {
-  getLs.map(function (produit) {
-    return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
-      return products.json();
-    }).then(function (data) {
-      return genererPanier(data, produit);
-    }); // changeQuantity(produit));
+getLs.map(function (produit) {
+  return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
+    return products.json();
+  }).then(function (data) {
+    genererPanier(data, produit); // calculPrixTotal(data)
+
+    changeQuantity();
   });
-}
+}); // }
 
 function genererPanier(data, produit) {
   // DOM
@@ -39,19 +39,16 @@ function genererPanier(data, produit) {
   var divItemContentSettQuant = document.createElement("div");
   divItemContentSettQuant.classList.add("cart__item__content__settings__quantity");
   var quantityElement = document.createElement("p");
-  quantityElement.innerText = produit.quantity; // Input pour la quantité -->
+  quantityElement.innerText = 'Qté :'; // Input pour la quantité -->
 
   var itemQuantity = document.createElement("input");
   itemQuantity.classList.add("itemQuantity");
   itemQuantity.setAttribute("name", 'itemQuantity');
   itemQuantity.setAttribute("type", 'number');
-  itemQuantity.setAttribute("value", '0');
+  itemQuantity.setAttribute("value", produit.quantity);
   itemQuantity.setAttribute("min", '1');
   itemQuantity.setAttribute("max", '100');
-  itemQuantity.setAttribute("step", '1'); //  S'occuper de l'evenement du clic de changement de quantité (Pb : ne détecte pas le .value fans le fonction)
-  // console.log(itemQuantity.value);
-  // itemQuantity.addEventListener("click", changeQuantity(produit));
-  // 
+  itemQuantity.setAttribute("step", '1'); // input quantité avec innerhtml (Besoin de le faire si marche au dessus ?)
 
   var divItemContentSettDel = document.createElement("div");
   divItemContentSettDel.classList.add("cart__item__content__settings__delete");
@@ -79,7 +76,7 @@ function genererPanier(data, produit) {
   divItemContentSettDel.appendChild(deleteElement);
 }
 
-; //  fonction pour le calcul total des articles 
+; //  fonction pour le calcul total des articles (ok ?)
 
 function calculQuantity() {
   var totalQuantity = document.querySelector("#totalQuantity");
@@ -88,7 +85,7 @@ function calculQuantity() {
   for (var i = 0; i < getLs.length; i++) {
     var quantProd = parseInt(getLs[i].quantity);
     totQuant.push(quantProd);
-  } // Addition des produits
+  } // Addition des produits 
 
 
   var reducer = function reducer(accumulator, currentvalue) {
@@ -101,34 +98,34 @@ function calculQuantity() {
 }
 
 ;
-calculQuantity(); // //  trouver comment utiler data et produit
-// function calculPrixTotal (data, produit) {
-//     let totalPrice = document.querySelector("#totalPrice");
-//     let totPrix = [];
-//     const prixProd = parseInt(produit.quantity) * data.price;
-//     for (let i = 0; i < getLs.length; i++) {
-//         const prixProd = parseInt(getLs[i].quantity) * console.log(data.price);
-//         totPrix.push(prixProd);
-//         } 
-//    totalPrice.innerText = prixProd
-// }
-// calculPrixTotal ();
+calculQuantity(); // //  trouver comment utiliser data (et produit ?) (prixprod not defined) reprendre comme au dessus
+
+function calculPrixTotal(data) {
+  var totalPrice = document.querySelector("#totalPrice");
+  var totPrix = [];
+
+  for (var i = 0; i < getLs.length; i++) {
+    var _prixProd = data.price * parseInt(getLs[i].quantity);
+
+    totPrix.push(_prixProd);
+  }
+
+  totalPrice.innerText = prixProd;
+} //  le addEvent de fonctionne pas
+
 
 function changeQuantity() {
   var itemQuantity = document.querySelectorAll(".itemQuantity");
-  console.log(itemQuantity.length);
-  itemQuantity.addEventListener("change", function () {
-    var newQuantity = parseInt(produit.quantity) + parseInt(itemQuantity.value);
-    var panier = {
-      id: produit.id,
-      couleur: produit.couleur,
-      quantity: newQuantity
-    };
-    localStorage.setItem("panier", JSON.stringify(panier));
-    location.reload();
+  itemQuantity.forEach(function (element) {
+    element.addEventListener("change", function (event) {
+      console.log(getLs);
+      var actualQuantity = parseInt(event.target.value);
+      console.log(actualQuantity);
+      var newQuantity = actualQuantity;
+      getLs.quantity = newQuantity;
+      localStorage.setItem("panier", JSON.stringify(getLs));
+    });
   });
 }
 
 ;
-changeQuantity();
-apiFetch();

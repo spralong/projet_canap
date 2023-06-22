@@ -2,16 +2,20 @@
 const getLs = JSON.parse(localStorage.getItem("panier"));
 
 // Fonction pour récupérer les produits du LS dans l'API
-console.log(getLs);
-function apiFetch(){
+console.log(getLs)
+// function apiFetch(){
     getLs.map(produit => {
         return fetch(`http://localhost:3000/api/products/${produit.id}`)
     .then(products => products.json())
-    .then(data => 
-        genererPanier(data, produit))
-    // changeQuantity(produit));
+    .then(data => {
+        genererPanier(data, produit)
+        // calculPrixTotal(data)
+        changeQuantity();
+    })
+     
 })
-}
+// }
+
 
 
 function genererPanier(data, produit) {
@@ -50,25 +54,19 @@ function genererPanier(data, produit) {
         divItemContentSettQuant.classList.add("cart__item__content__settings__quantity");
 
         const quantityElement = document.createElement("p");
-        quantityElement.innerText = produit.quantity;
+        quantityElement.innerText = 'Qté :';
 
         // Input pour la quantité -->
-        
         const itemQuantity = document.createElement("input");
         itemQuantity.classList.add("itemQuantity");
         itemQuantity.setAttribute("name", 'itemQuantity');
         itemQuantity.setAttribute("type", 'number');
-        itemQuantity.setAttribute("value", '0');
+        itemQuantity.setAttribute("value", produit.quantity);
         itemQuantity.setAttribute("min", '1');
         itemQuantity.setAttribute("max", '100');
         itemQuantity.setAttribute("step", '1');
+        // input quantité avec innerhtml (Besoin de le faire si marche au dessus ?)
 
-
-        //  S'occuper de l'evenement du clic de changement de quantité (Pb : ne détecte pas le .value fans le fonction)
-        // console.log(itemQuantity.value);
-        // itemQuantity.addEventListener("click", changeQuantity(produit));
-
-        // 
 
         const divItemContentSettDel = document.createElement("div");
         divItemContentSettDel.classList.add("cart__item__content__settings__delete");
@@ -107,7 +105,7 @@ function genererPanier(data, produit) {
 
 };
 
-//  fonction pour le calcul total des articles 
+//  fonction pour le calcul total des articles (ok ?)
 function calculQuantity () {
 
     let totalQuantity = document.querySelector("#totalQuantity");
@@ -120,7 +118,7 @@ function calculQuantity () {
 
     } 
 
-// Addition des produits
+// Addition des produits 
     const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
     const totalArticles = totQuant.reduce(reducer);
 // 
@@ -129,48 +127,44 @@ function calculQuantity () {
 calculQuantity ();
 
 
-// //  trouver comment utiler data et produit
-// function calculPrixTotal (data, produit) {
+// //  trouver comment utiliser data (et produit ?) (prixprod not defined) reprendre comme au dessus
+function calculPrixTotal (data) {
  
-//     let totalPrice = document.querySelector("#totalPrice");
-//     let totPrix = [];
+    let totalPrice = document.querySelector("#totalPrice");
+    let totPrix = [];
 
-//     const prixProd = parseInt(produit.quantity) * data.price;
     
-//     for (let i = 0; i < getLs.length; i++) {
+    for (let i = 0; i < getLs.length; i++) {
 
-//         const prixProd = parseInt(getLs[i].quantity) * console.log(data.price);
-//         totPrix.push(prixProd);
+        let prixProd = data.price * parseInt(getLs[i].quantity);
+        totPrix.push(prixProd);
     
-//         } 
+        } 
 
-//    totalPrice.innerText = prixProd
+   totalPrice.innerText = prixProd;
 
-// }
-// calculPrixTotal ();
-
+}
 
 
 
-
-
-
+//  le addEvent de fonctionne pas
 
 function changeQuantity () {
     const itemQuantity = document.querySelectorAll(".itemQuantity");
-console.log(itemQuantity.length)
-    itemQuantity.addEventListener("change", function () {
-        const newQuantity = parseInt(produit.quantity) + parseInt(itemQuantity.value);
-    
-        const panier = {id : produit.id, couleur : produit.couleur, quantity : newQuantity};
-    
-        localStorage.setItem("panier", JSON.stringify(panier));
-        location.reload(); 
-    })
+    itemQuantity.forEach(element => {
+        element.addEventListener("change", function (event) {
+           console.log(getLs)
+            const actualQuantity = parseInt(event.target.value);
+            console.log(actualQuantity);
+            const newQuantity = actualQuantity;
+            getLs.quantity = newQuantity
+        
+            localStorage.setItem("panier", JSON.stringify(getLs)); 
+        })
+    });
 };
-changeQuantity();
 
 
 
-apiFetch();
+
 
