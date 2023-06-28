@@ -9,7 +9,7 @@ console.log(getLs)
     .then(products => products.json())
     .then(data => {
         genererPanier(data, produit)
-        // calculPrixTotal(data)
+        calculPrixTotal(data)
         changeQuantity();
     })
      
@@ -75,14 +75,6 @@ function genererPanier(data, produit) {
         deleteElement.classList.add("deleteItem");
         deleteElement.innerText = `Supprimer`;
 
-        // faire le bouton supprimer des produits
-
-        // 
-
-        // Total articles
-
-        // 
-
 
         const sectionItems = document.querySelector("#cart__items");
         sectionItems.appendChild(articleElement);
@@ -105,7 +97,7 @@ function genererPanier(data, produit) {
 
 };
 
-//  fonction pour le calcul total des articles (ok ?)
+//  fonction pour le calcul total des articles 
 function calculQuantity () {
 
     let totalQuantity = document.querySelector("#totalQuantity");
@@ -127,27 +119,29 @@ function calculQuantity () {
 calculQuantity ();
 
 
-// //  trouver comment utiliser data (et produit ?) (prixprod not defined) reprendre comme au dessus
+// Le calcul fonctionne seulement pour 1 produit (après calcul impcompréhensible)
 function calculPrixTotal (data) {
  
     let totalPrice = document.querySelector("#totalPrice");
     let totPrix = [];
-
     
     for (let i = 0; i < getLs.length; i++) {
 
         let prixProd = data.price * parseInt(getLs[i].quantity);
-        totPrix.push(prixProd);
-    
-        } 
+        totPrix.push(prixProd);    
+        console.log(totPrix);
+    }
 
-   totalPrice.innerText = prixProd;
+    const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
+    let totalPrix = totPrix.reduce(reducer);
 
-}
+    totalPrice.innerText = totalPrix;
+    console.log(totalPrix);
+};
 
 
 
-//  le addEvent de fonctionne pas
+//  créer une nouvelle qt
 
 function changeQuantity () {
     const itemQuantity = document.querySelectorAll(".itemQuantity");
@@ -157,13 +151,22 @@ function changeQuantity () {
             const actualQuantity = parseInt(event.target.value);
             console.log(actualQuantity);
             const newQuantity = actualQuantity;
-            getLs.quantity = newQuantity
-        
+            getLs.quantity = newQuantity;
+        console.log(getLs)
             localStorage.setItem("panier", JSON.stringify(getLs)); 
         })
     });
 };
 
+// faire le bouton supprimer des produits (Tjr addEvent pas une fonction)
+function suppElement () {
+    const deleteItem = document.querySelectorAll(".deleteItem");
+    deleteItem.addEventListener("click" , function () {
+        localStorage.removeItem(getLs);
+    })
+};
+suppElement ();
+// 
 
 
 

@@ -9,8 +9,8 @@ getLs.map(function (produit) {
   return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
     return products.json();
   }).then(function (data) {
-    genererPanier(data, produit); // calculPrixTotal(data)
-
+    genererPanier(data, produit);
+    calculPrixTotal(data);
     changeQuantity();
   });
 }); // }
@@ -54,11 +54,7 @@ function genererPanier(data, produit) {
   divItemContentSettDel.classList.add("cart__item__content__settings__delete");
   var deleteElement = document.createElement("p");
   deleteElement.classList.add("deleteItem");
-  deleteElement.innerText = "Supprimer"; // faire le bouton supprimer des produits
-  // 
-  // Total articles
-  // 
-
+  deleteElement.innerText = "Supprimer";
   var sectionItems = document.querySelector("#cart__items");
   sectionItems.appendChild(articleElement);
   articleElement.appendChild(divItemImg);
@@ -76,7 +72,7 @@ function genererPanier(data, produit) {
   divItemContentSettDel.appendChild(deleteElement);
 }
 
-; //  fonction pour le calcul total des articles (ok ?)
+; //  fonction pour le calcul total des articles 
 
 function calculQuantity() {
   var totalQuantity = document.querySelector("#totalQuantity");
@@ -98,21 +94,28 @@ function calculQuantity() {
 }
 
 ;
-calculQuantity(); // //  trouver comment utiliser data (et produit ?) (prixprod not defined) reprendre comme au dessus
+calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (après calcul impcompréhensible)
 
 function calculPrixTotal(data) {
   var totalPrice = document.querySelector("#totalPrice");
   var totPrix = [];
 
   for (var i = 0; i < getLs.length; i++) {
-    var _prixProd = data.price * parseInt(getLs[i].quantity);
-
-    totPrix.push(_prixProd);
+    var prixProd = data.price * parseInt(getLs[i].quantity);
+    totPrix.push(prixProd);
+    console.log(totPrix);
   }
 
-  totalPrice.innerText = prixProd;
-} //  le addEvent de fonctionne pas
+  var reducer = function reducer(accumulator, currentvalue) {
+    return accumulator + currentvalue;
+  };
 
+  var totalPrix = totPrix.reduce(reducer);
+  totalPrice.innerText = totalPrix;
+  console.log(totalPrix);
+}
+
+; //  créer une nouvelle qt
 
 function changeQuantity() {
   var itemQuantity = document.querySelectorAll(".itemQuantity");
@@ -123,9 +126,20 @@ function changeQuantity() {
       console.log(actualQuantity);
       var newQuantity = actualQuantity;
       getLs.quantity = newQuantity;
+      console.log(getLs);
       localStorage.setItem("panier", JSON.stringify(getLs));
     });
   });
 }
 
+; // faire le bouton supprimer des produits (Tjr addEvent pas une fonction)
+
+function suppElement() {
+  var deleteItem = document.querySelectorAll(".deleteItem");
+  deleteItem.addEventListener("click", function () {
+    localStorage.removeItem(getLs);
+  });
+}
+
 ;
+suppElement(); //
