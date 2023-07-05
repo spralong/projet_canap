@@ -9,8 +9,7 @@ console.log(getLs)
     .then(products => products.json())
     .then(data => {
         genererPanier(data, produit)
-        calculPrixTotal(data)
-        changeQuantity();
+        // changeQuantity();
     })
      
 })
@@ -45,6 +44,7 @@ function genererPanier(data, produit) {
         couleurElement.innerText = produit.couleur;
 
         const prixElement = document.createElement("p");
+        prixElement.classList.add("priceElement");
         prixElement.innerText = `${data.price}€`;
 
         const divItemContentSett = document.createElement("div");
@@ -65,7 +65,6 @@ function genererPanier(data, produit) {
         itemQuantity.setAttribute("min", '1');
         itemQuantity.setAttribute("max", '100');
         itemQuantity.setAttribute("step", '1');
-        // input quantité avec innerhtml (Besoin de le faire si marche au dessus ?)
 
 
         const divItemContentSettDel = document.createElement("div");
@@ -119,25 +118,39 @@ function calculQuantity () {
 calculQuantity ();
 
 
-// Le calcul fonctionne seulement pour 1 produit (après calcul impcompréhensible)
-function calculPrixTotal (data) {
+// Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom)
+function calculPrixTotal () {
  
-    let totalPrice = document.querySelector("#totalPrice");
-    let totPrix = [];
+    // let totalPrice = document.querySelector("#totalPrice");
+    // let totPrix = [];
+
+    //  Touver comment acceder au price du DOM !
+
+    // test.querySelector("p.priceElement");
+    // test.getElementByTagname("p");
+
+    const test = document.getElementsByClassName("priceElement");
+
+    // const array = Array.from(test);
+    // test.forEach(function (element) {
+    //     console.log(element);
+    // });
+    console.log(test.value);
+
     
-    for (let i = 0; i < getLs.length; i++) {
 
-        let prixProd = data.price * parseInt(getLs[i].quantity);
-        totPrix.push(prixProd);    
-        console.log(totPrix);
-    }
+    // for (let i = 0; i < getLs.length; i++) {
+        
+    //     let prixProd =  parseInt(getLs[i].quantity);
+    //     totPrix.push(prixProd);    
+    // }
 
-    const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
-    let totalPrix = totPrix.reduce(reducer);
+    // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
+    // let totalPrix = totPrix.reduce(reducer);
 
-    totalPrice.innerText = totalPrix;
-    console.log(totalPrix);
+    // totalPrice.innerText = totalPrix;
 };
+calculPrixTotal();
 
 
 
@@ -167,6 +180,7 @@ function suppElement () {
 };
 suppElement ();
 // 
+
 
 
 

@@ -9,9 +9,7 @@ getLs.map(function (produit) {
   return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
     return products.json();
   }).then(function (data) {
-    genererPanier(data, produit);
-    calculPrixTotal(data);
-    changeQuantity();
+    genererPanier(data, produit); // changeQuantity();
   });
 }); // }
 
@@ -33,6 +31,7 @@ function genererPanier(data, produit) {
   var couleurElement = document.createElement("p");
   couleurElement.innerText = produit.couleur;
   var prixElement = document.createElement("p");
+  prixElement.classList.add("priceElement");
   prixElement.innerText = "".concat(data.price, "\u20AC");
   var divItemContentSett = document.createElement("div");
   divItemContentSett.classList.add("cart__item__content__settings");
@@ -48,8 +47,7 @@ function genererPanier(data, produit) {
   itemQuantity.setAttribute("value", produit.quantity);
   itemQuantity.setAttribute("min", '1');
   itemQuantity.setAttribute("max", '100');
-  itemQuantity.setAttribute("step", '1'); // input quantité avec innerhtml (Besoin de le faire si marche au dessus ?)
-
+  itemQuantity.setAttribute("step", '1');
   var divItemContentSettDel = document.createElement("div");
   divItemContentSettDel.classList.add("cart__item__content__settings__delete");
   var deleteElement = document.createElement("p");
@@ -94,28 +92,30 @@ function calculQuantity() {
 }
 
 ;
-calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (après calcul impcompréhensible)
+calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom)
 
-function calculPrixTotal(data) {
-  var totalPrice = document.querySelector("#totalPrice");
-  var totPrix = [];
+function calculPrixTotal() {
+  // let totalPrice = document.querySelector("#totalPrice");
+  // let totPrix = [];
+  //  Touver comment acceder au price du DOM !
+  // test.querySelector("p.priceElement");
+  // test.getElementByTagname("p");
+  var test = document.getElementsByClassName("priceElement"); // const array = Array.from(test);
+  // test.forEach(function (element) {
+  //     console.log(element);
+  // });
 
-  for (var i = 0; i < getLs.length; i++) {
-    var prixProd = data.price * parseInt(getLs[i].quantity);
-    totPrix.push(prixProd);
-    console.log(totPrix);
-  }
-
-  var reducer = function reducer(accumulator, currentvalue) {
-    return accumulator + currentvalue;
-  };
-
-  var totalPrix = totPrix.reduce(reducer);
-  totalPrice.innerText = totalPrix;
-  console.log(totalPrix);
+  console.log(test.value); // for (let i = 0; i < getLs.length; i++) {
+  //     let prixProd =  parseInt(getLs[i].quantity);
+  //     totPrix.push(prixProd);    
+  // }
+  // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
+  // let totalPrix = totPrix.reduce(reducer);
+  // totalPrice.innerText = totalPrix;
 }
 
-; //  créer une nouvelle qt
+;
+calculPrixTotal(); //  créer une nouvelle qt
 
 function changeQuantity() {
   var itemQuantity = document.querySelectorAll(".itemQuantity");
