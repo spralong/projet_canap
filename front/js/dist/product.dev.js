@@ -33,7 +33,7 @@ function genererProduct(promise) {
   }
 }
 
-; //  Solution par Thomas
+; //  Solution par Thomas (Tenter la solution proposer par le X via JS playground)
 
 var ajoutPanier = document.getElementById("addToCart");
 ajoutPanier.addEventListener("click", addPanier);
@@ -44,9 +44,7 @@ function addPanier() {
 
   if (quantity < 1 || quantity > 100) {
     alert("Veuillez choisir un  nombre entre 1 et 100 svp");
-  }
-
-  if (couleur === "") {
+  } else if (couleur === "") {
     alert("Veuillez choisir une couleur svp");
   } else {
     var panier = {

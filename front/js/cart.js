@@ -8,10 +8,10 @@ console.log(getLs)
         return fetch(`http://localhost:3000/api/products/${produit.id}`)
     .then(products => products.json())
     .then(data => {
-        genererPanier(data, produit)
-        // changeQuantity();
-    })
-     
+        genererPanier(data, produit);
+        changeQuantity();
+        suppElement();
+    })    
 })
 // }
 
@@ -118,68 +118,60 @@ function calculQuantity () {
 calculQuantity ();
 
 
-// Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom)
+// Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom) 
 function calculPrixTotal () {
- 
+                    
     // let totalPrice = document.querySelector("#totalPrice");
     // let totPrix = [];
 
-    //  Touver comment acceder au price du DOM !
+    const test = document.querySelectorAll(".priceElement");
+    console.log(test);
 
-    // test.querySelector("p.priceElement");
-    // test.getElementByTagname("p");
-
-    const test = document.getElementsByClassName("priceElement");
-
-    // const array = Array.from(test);
-    // test.forEach(function (element) {
-    //     console.log(element);
-    // });
-    console.log(test.value);
-
-    
-
-    // for (let i = 0; i < getLs.length; i++) {
+    for (let i = 0; i < test.length; i++) {
         
-    //     let prixProd =  parseInt(getLs[i].quantity);
-    //     totPrix.push(prixProd);    
-    // }
+        console.log(test[i].innerHTML);
+        // let prixProd =  parseInt(getLs[i].quantity);
+        // totPrix.push(prixProd);    
+    }
 
     // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
     // let totalPrix = totPrix.reduce(reducer);
 
     // totalPrice.innerText = totalPrix;
+
+
+
 };
 calculPrixTotal();
 
+function changeQuantity() {
+    let btn_qty = document.querySelectorAll('.itemQuantity');
+    for (let d = 0; d < btn_qty.length; d++) {
+        btn_qty[d].addEventListener('change', function () {
+            // Demander a Thomas, à quoi sert le 10 ? fonctionne sans 
+            let qtyModified = parseInt(btn_qty[d].value, 10);
+            getLs[d].quantity = qtyModified;
+   
+            localStorage.setItem('panier', JSON.stringify(getLs));
+            location.reload();
+        }
+    )}
+}
 
 
-//  créer une nouvelle qt
-
-function changeQuantity () {
-    const itemQuantity = document.querySelectorAll(".itemQuantity");
-    itemQuantity.forEach(element => {
-        element.addEventListener("change", function (event) {
-           console.log(getLs)
-            const actualQuantity = parseInt(event.target.value);
-            console.log(actualQuantity);
-            const newQuantity = actualQuantity;
-            getLs.quantity = newQuantity;
-        console.log(getLs)
-            localStorage.setItem("panier", JSON.stringify(getLs)); 
-        })
-    });
-};
-
-// faire le bouton supprimer des produits (Tjr addEvent pas une fonction)
 function suppElement () {
-    const deleteItem = document.querySelectorAll(".deleteItem");
-    deleteItem.addEventListener("click" , function () {
-        localStorage.removeItem(getLs);
-    })
+    let deleteItem = document.querySelectorAll(".deleteItem");
+
+    for (let d = 0; d < deleteItem.length; d++) {
+        deleteItem[d].addEventListener('click', function () {
+            // trouver l'argument pour en supprimer seulement 1
+            localStorage.removeItem("panier", JSON.stringify(getLs[d]));
+            location.reload();
+        })
+    }
 };
-suppElement ();
-// 
+
+
 
 
 

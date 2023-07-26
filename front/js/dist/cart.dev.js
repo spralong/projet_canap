@@ -9,7 +9,9 @@ getLs.map(function (produit) {
   return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
     return products.json();
   }).then(function (data) {
-    genererPanier(data, produit); // changeQuantity();
+    genererPanier(data, produit);
+    changeQuantity();
+    suppElement();
   });
 }); // }
 
@@ -92,54 +94,58 @@ function calculQuantity() {
 }
 
 ;
-calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom)
+calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom) 
 
 function calculPrixTotal() {
   // let totalPrice = document.querySelector("#totalPrice");
   // let totPrix = [];
-  //  Touver comment acceder au price du DOM !
-  // test.querySelector("p.priceElement");
-  // test.getElementByTagname("p");
-  var test = document.getElementsByClassName("priceElement"); // const array = Array.from(test);
-  // test.forEach(function (element) {
-  //     console.log(element);
-  // });
+  var test = document.querySelectorAll(".priceElement");
+  console.log(test);
 
-  console.log(test.value); // for (let i = 0; i < getLs.length; i++) {
-  //     let prixProd =  parseInt(getLs[i].quantity);
-  //     totPrix.push(prixProd);    
-  // }
-  // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
+  for (var i = 0; i < test.length; i++) {
+    console.log(test[i].innerHTML); // let prixProd =  parseInt(getLs[i].quantity);
+    // totPrix.push(prixProd);    
+  } // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
   // let totalPrix = totPrix.reduce(reducer);
   // totalPrice.innerText = totalPrix;
+
 }
 
 ;
-calculPrixTotal(); //  créer une nouvelle qt
+calculPrixTotal();
 
 function changeQuantity() {
-  var itemQuantity = document.querySelectorAll(".itemQuantity");
-  itemQuantity.forEach(function (element) {
-    element.addEventListener("change", function (event) {
-      console.log(getLs);
-      var actualQuantity = parseInt(event.target.value);
-      console.log(actualQuantity);
-      var newQuantity = actualQuantity;
-      getLs.quantity = newQuantity;
-      console.log(getLs);
-      localStorage.setItem("panier", JSON.stringify(getLs));
-    });
-  });
-}
+  var btn_qty = document.querySelectorAll('.itemQuantity');
 
-; // faire le bouton supprimer des produits (Tjr addEvent pas une fonction)
+  var _loop = function _loop(d) {
+    btn_qty[d].addEventListener('change', function () {
+      // Demander a Thomas, à quoi sert le 10 ? fonctionne sans 
+      var qtyModified = parseInt(btn_qty[d].value, 10);
+      getLs[d].quantity = qtyModified;
+      localStorage.setItem('panier', JSON.stringify(getLs));
+      location.reload();
+    });
+  };
+
+  for (var d = 0; d < btn_qty.length; d++) {
+    _loop(d);
+  }
+}
 
 function suppElement() {
   var deleteItem = document.querySelectorAll(".deleteItem");
-  deleteItem.addEventListener("click", function () {
-    localStorage.removeItem(getLs);
-  });
+
+  var _loop2 = function _loop2(d) {
+    deleteItem[d].addEventListener('click', function () {
+      // trouver l'argument pour en supprimer seulement 1
+      localStorage.removeItem("panier", JSON.stringify(getLs[d]));
+      location.reload();
+    });
+  };
+
+  for (var d = 0; d < deleteItem.length; d++) {
+    _loop2(d);
+  }
 }
 
 ;
-suppElement(); //
