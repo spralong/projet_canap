@@ -1,19 +1,23 @@
 "use strict";
 
 // Récupération du LS
-var getLs = JSON.parse(localStorage.getItem("panier")); // Fonction pour récupérer les produits du LS dans l'API
+var getLs = JSON.parse(localStorage.getItem("panier"));
 
-console.log(getLs); // function apiFetch(){
-
-getLs.map(function (produit) {
-  return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
-    return products.json();
-  }).then(function (data) {
-    genererPanier(data, produit);
+if (getLs) {
+  Promise.all(getLs.map(function (produit) {
+    return fetch("http://localhost:3000/api/products/".concat(produit.id)).then(function (products) {
+      return products.json();
+    }).then(function (data) {
+      genererPanier(data, produit);
+    });
+  })).then(function () {
     changeQuantity();
-    suppElement();
+    ExecDelete();
+    calculQuantity();
+    calculPrixTotal();
+    validForm();
   });
-}); // }
+}
 
 function genererPanier(data, produit) {
   // DOM
@@ -55,6 +59,10 @@ function genererPanier(data, produit) {
   var deleteElement = document.createElement("p");
   deleteElement.classList.add("deleteItem");
   deleteElement.innerText = "Supprimer";
+  deleteElement.id = produit.id + produit.couleur;
+  deleteElement.addEventListener("click", function (e) {
+    ExecDelete(e.target.id);
+  });
   var sectionItems = document.querySelector("#cart__items");
   sectionItems.appendChild(articleElement);
   articleElement.appendChild(divItemImg);
@@ -69,57 +77,66 @@ function genererPanier(data, produit) {
   divItemContentSettQuant.appendChild(quantityElement);
   divItemContentSettQuant.appendChild(itemQuantity);
   divItemContentSett.appendChild(divItemContentSettDel);
-  divItemContentSettDel.appendChild(deleteElement);
+  divItemContentSettDel.appendChild(deleteElement); // 
+  // const lienConfirmation = document.createElement("a");
+  // lienConfirmation.href = './confirmation.html';
+  // const btnCommander = document.querySelector("cart__order__form");
+  // btnCommander.setAttribute("action", "./confirmation.html");
+  // btnCommander.appendChild(lienConfirmation);S
 }
 
 ; //  fonction pour le calcul total des articles 
 
 function calculQuantity() {
-  var totalQuantity = document.querySelector("#totalQuantity");
-  var totQuant = [];
+  if (getLs.length > 0) {
+    var totalQuantity = document.querySelector("#totalQuantity");
+    var totQuant = [];
 
-  for (var i = 0; i < getLs.length; i++) {
-    var quantProd = parseInt(getLs[i].quantity);
-    totQuant.push(quantProd);
-  } // Addition des produits 
+    for (var i = 0; i < getLs.length; i++) {
+      var quantProd = parseInt(getLs[i].quantity);
+      totQuant.push(quantProd);
+    } // Addition des produits 
 
 
-  var reducer = function reducer(accumulator, currentvalue) {
-    return accumulator + currentvalue;
-  };
+    var reducer = function reducer(accumulator, currentvalue) {
+      return accumulator + currentvalue;
+    };
 
-  var totalArticles = totQuant.reduce(reducer); // 
+    var totalArticles = totQuant.reduce(reducer); // 
 
-  totalQuantity.innerText = totalArticles;
+    totalQuantity.innerText = totalArticles;
+  }
 }
 
 ;
-calculQuantity(); // Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom) 
 
 function calculPrixTotal() {
-  // let totalPrice = document.querySelector("#totalPrice");
-  // let totPrix = [];
-  var test = document.querySelectorAll(".priceElement");
-  console.log(test);
+  var totalPrice = document.getElementById('totalPrice');
 
-  for (var i = 0; i < test.length; i++) {
-    console.log(test[i].innerHTML); // let prixProd =  parseInt(getLs[i].quantity);
-    // totPrix.push(prixProd);    
-  } // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
-  // let totalPrix = totPrix.reduce(reducer);
-  // totalPrice.innerText = totalPrix;
+  if (getLs.length > 0) {
+    var test = document.querySelectorAll(".priceElement");
+    var totPrix = [];
 
+    for (var i = 0; i < getLs.length; i++) {
+      var prixProd = parseInt(test[i].innerText) * parseInt(getLs[i].quantity);
+      totPrix.push(prixProd);
+    } // Addition des produits 
+
+
+    var reducer = function reducer(accumulator, currentvalue) {
+      return accumulator + currentvalue;
+    };
+
+    var totalPrix = totPrix.reduce(reducer);
+    totalPrice.innerText = totalPrix;
+  }
 }
-
-;
-calculPrixTotal();
 
 function changeQuantity() {
   var btn_qty = document.querySelectorAll('.itemQuantity');
 
   var _loop = function _loop(d) {
     btn_qty[d].addEventListener('change', function () {
-      // Demander a Thomas, à quoi sert le 10 ? fonctionne sans 
       var qtyModified = parseInt(btn_qty[d].value, 10);
       getLs[d].quantity = qtyModified;
       localStorage.setItem('panier', JSON.stringify(getLs));
@@ -132,20 +149,104 @@ function changeQuantity() {
   }
 }
 
-function suppElement() {
-  var deleteItem = document.querySelectorAll(".deleteItem");
+; //  Supp l'élément
 
-  var _loop2 = function _loop2(d) {
-    deleteItem[d].addEventListener('click', function () {
-      // trouver l'argument pour en supprimer seulement 1
-      localStorage.removeItem("panier", JSON.stringify(getLs[d]));
+function ExecDelete(targetId) {
+  for (var d = 0; d < getLs.length; d++) {
+    var itemId = getLs[d].id + getLs[d].couleur;
+
+    if (itemId === targetId) {
+      getLs.splice(d, 1);
+      localStorage.setItem("panier", JSON.stringify(getLs));
       location.reload();
-    });
-  };
-
-  for (var d = 0; d < deleteItem.length; d++) {
-    _loop2(d);
+    }
   }
 }
 
 ;
+
+function validForm() {
+  var formulaire = document.querySelector('#order');
+  formulaire.addEventListener('click', function (e) {
+    var allOk = true;
+    var myRegex = /^[a-zA-Z-\sàâäéèêëìîïôöòùçñ]{2,}$/;
+    var myRegexEmail = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
+    var myRegexAdresse = /^[a-zA-Z0-9\s,.'-]{3,}$/;
+    allOk = allOk && testElement('firstName', 'prénom', 'firstNameErrorMsg', myRegex, e);
+    allOk = allOk && testElement('firstName', 'nom', 'lastNameErrorMsg', myRegex, e);
+    allOk = allOk && testElement('address', 'adresse', 'addressErrorMsg', myRegexAdresse, e);
+    allOk = allOk && testElement('city', 'ville', 'cityErrorMsg', myRegex, e);
+    allOk = allOk && testElement('email', 'mail', 'emailErrorMsg', myRegexEmail, e); // trouver la chemin de page conf !
+
+    if (allOk == true) {
+      postAPI();
+      e.preventDefault();
+    }
+  });
+}
+
+;
+
+function testElement(elementName, elementTitle, elementErrorMsg, myRegex, e) {
+  var myElement = document.getElementById(elementName);
+  var ok = true;
+
+  if (myElement.value.trim() == "") {
+    var error = document.getElementById(elementErrorMsg);
+    error.innerHTML = 'Le champ ' + elementTitle + ' est requis.';
+    ok = false;
+    e.preventDefault();
+  } else if (myRegex.test(myElement.value) == false) {
+    var _error = document.getElementById(elementErrorMsg);
+
+    _error.innerHTML = "Le " + elementTitle + " que vous avez choisi n'est pas valide";
+    ok = false;
+    e.preventDefault();
+  } else if (myRegex.test(myElement.value) == true) {
+    var _error2 = document.getElementById(elementErrorMsg);
+
+    _error2.innerHTML = "";
+  }
+
+  return ok;
+}
+
+function postAPI() {
+  var contact = {
+    firstName: "".concat(firstName.value),
+    lastName: "".concat(lastName.value),
+    address: "".concat(address.value),
+    city: "".concat(city.value),
+    email: "".concat(email.value)
+  };
+  var prodId = [];
+
+  for (var i = 0; i < getLs.length; i++) {
+    prodId.push(getLs[i].id);
+  }
+
+  ;
+  var contactProd = {
+    contact: contact,
+    prodId: prodId
+  };
+  console.log(JSON.stringify({
+    contact: contact,
+    prodId: prodId
+  }));
+  console.log();
+  var reponseAPI = fetch('http://localhost:3000/api/products/order', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify(contactProd)
+  }).then(function (res) {
+    return res.json();
+  }).then(function (data) {
+    console.log(data);
+  })["catch"](function (error) {
+    console.error(error);
+  }); // let result = await reponseAPI.json();
+  // console.log(result.message);
+}

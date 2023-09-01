@@ -1,20 +1,34 @@
 // Récupération du LS
 const getLs = JSON.parse(localStorage.getItem("panier"));
 
-// Fonction pour récupérer les produits du LS dans l'API
-console.log(getLs)
-// function apiFetch(){
-    getLs.map(produit => {
-        return fetch(`http://localhost:3000/api/products/${produit.id}`)
-    .then(products => products.json())
-    .then(data => {
-        genererPanier(data, produit);
-        changeQuantity();
-        suppElement();
-    })    
-})
-// }
+if (getLs) {
 
+    Promise.all(getLs.map(produit => {
+
+        return fetch(`http://localhost:3000/api/products/${produit.id}`)
+
+            .then(products => products.json())
+
+            .then(data => {
+
+                genererPanier(data, produit);
+
+            });
+
+    })).then(() => {
+
+        changeQuantity();
+
+        ExecDelete();
+
+        calculQuantity();
+
+        calculPrixTotal();
+
+        validForm();
+    });
+
+}
 
 
 function genererPanier(data, produit) {
@@ -73,6 +87,8 @@ function genererPanier(data, produit) {
         const deleteElement = document.createElement("p");
         deleteElement.classList.add("deleteItem");
         deleteElement.innerText = `Supprimer`;
+        deleteElement.id = produit.id + produit.couleur;
+        deleteElement.addEventListener("click", function(e){ExecDelete(e.target.id)});
 
 
         const sectionItems = document.querySelector("#cart__items");
@@ -94,11 +110,21 @@ function genererPanier(data, produit) {
         divItemContentSett.appendChild(divItemContentSettDel);
         divItemContentSettDel.appendChild(deleteElement);
 
+// 
+
+        // const lienConfirmation = document.createElement("a");
+        // lienConfirmation.href = './confirmation.html';
+
+        // const btnCommander = document.querySelector("cart__order__form");
+        // btnCommander.setAttribute("action", "./confirmation.html");
+        // btnCommander.appendChild(lienConfirmation);S
+        
+
 };
 
 //  fonction pour le calcul total des articles 
 function calculQuantity () {
-
+    if (getLs.length > 0 ) {
     let totalQuantity = document.querySelector("#totalQuantity");
     let totQuant = [];
     
@@ -114,66 +140,137 @@ function calculQuantity () {
     const totalArticles = totQuant.reduce(reducer);
 // 
     totalQuantity.innerText = totalArticles;
-};
-calculQuantity ();
-
-
-// Le calcul fonctionne seulement pour 1 produit (Récup le price via le dom) 
-function calculPrixTotal () {
-                    
-    // let totalPrice = document.querySelector("#totalPrice");
-    // let totPrix = [];
-
-    const test = document.querySelectorAll(".priceElement");
-    console.log(test);
-
-    for (let i = 0; i < test.length; i++) {
-        
-        console.log(test[i].innerHTML);
-        // let prixProd =  parseInt(getLs[i].quantity);
-        // totPrix.push(prixProd);    
     }
-
-    // const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
-    // let totalPrix = totPrix.reduce(reducer);
-
-    // totalPrice.innerText = totalPrix;
-
-
-
 };
-calculPrixTotal();
+
+
+
+function calculPrixTotal () {
+    let totalPrice = document.getElementById('totalPrice');
+    
+    if (getLs.length > 0 ) {
+        const test = document.querySelectorAll(".priceElement");
+        let totPrix = [];
+        
+        for (let i = 0; i < getLs.length; i++) {
+    
+        const prixProd = parseInt(test[i].innerText) * parseInt(getLs[i].quantity);
+        totPrix.push(prixProd);
+        } 
+
+        // Addition des produits 
+        const reducer = (accumulator, currentvalue) => accumulator + currentvalue;
+        let totalPrix = totPrix.reduce(reducer);
+
+        totalPrice.innerText = totalPrix;
+    }
+}
+
 
 function changeQuantity() {
     let btn_qty = document.querySelectorAll('.itemQuantity');
     for (let d = 0; d < btn_qty.length; d++) {
         btn_qty[d].addEventListener('change', function () {
-            // Demander a Thomas, à quoi sert le 10 ? fonctionne sans 
             let qtyModified = parseInt(btn_qty[d].value, 10);
             getLs[d].quantity = qtyModified;
-   
             localStorage.setItem('panier', JSON.stringify(getLs));
             location.reload();
         }
     )}
-}
-
-
-function suppElement () {
-    let deleteItem = document.querySelectorAll(".deleteItem");
-
-    for (let d = 0; d < deleteItem.length; d++) {
-        deleteItem[d].addEventListener('click', function () {
-            // trouver l'argument pour en supprimer seulement 1
-            localStorage.removeItem("panier", JSON.stringify(getLs[d]));
-            location.reload();
-        })
-    }
 };
 
 
+//  Supp l'élément
+ function ExecDelete(targetId) {
+    for (let d = 0; d < getLs.length; d++) {
+        let itemId = getLs[d].id + getLs[d].couleur;
+        if (itemId === targetId) {
+            getLs.splice(d, 1);
+            localStorage.setItem("panier", JSON.stringify(getLs));
+            location.reload();        
+        }
+    }
+};
 
+function validForm() {
+    let formulaire = document.querySelector('#order');
 
+    formulaire.addEventListener('click', function (e) {
 
+        let allOk = true;
+        let myRegex = /^[a-zA-Z-\sàâäéèêëìîïôöòùçñ]{2,}$/;
+        let myRegexEmail = /^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$/;
+        let myRegexAdresse = /^[a-zA-Z0-9\s,.'-]{3,}$/;
 
+        allOk = allOk && testElement('firstName', 'prénom', 'firstNameErrorMsg', myRegex, e);
+        allOk = allOk && testElement('firstName', 'nom', 'lastNameErrorMsg', myRegex, e);
+        allOk = allOk && testElement('address', 'adresse', 'addressErrorMsg', myRegexAdresse, e);
+        allOk = allOk && testElement('city', 'ville', 'cityErrorMsg', myRegex, e);
+        allOk = allOk && testElement('email', 'mail', 'emailErrorMsg', myRegexEmail, e);
 
+        // trouver la chemin de page conf !
+        if (allOk == true) {
+            postAPI();
+            e.preventDefault();
+        }
+    })
+};
+
+function testElement(elementName,elementTitle, elementErrorMsg, myRegex, e) {
+    let myElement = document.getElementById(elementName);
+    let ok = true
+    if (myElement.value.trim() == "") {
+        let error = document.getElementById(elementErrorMsg);
+        error.innerHTML = 'Le champ '+ elementTitle + ' est requis.';
+        ok = false;
+        e.preventDefault();
+    } else if (myRegex.test(myElement.value) == false) {
+        let error = document.getElementById(elementErrorMsg);
+        error.innerHTML = "Le "+ elementTitle +" que vous avez choisi n'est pas valide";
+        ok = false;
+        e.preventDefault();
+    }else if (myRegex.test(myElement.value) == true) {
+        let error = document.getElementById(elementErrorMsg);
+        error.innerHTML = "";
+    }
+    return ok;
+}
+
+function postAPI() {
+    let contact = {
+        firstName : `${firstName.value}`,
+        lastName : `${lastName.value}`,
+        address : `${address.value}`,
+        city : `${city.value}`,
+        email : `${email.value}`
+    };
+
+    let prodId = [];
+    for (let i = 0;i < getLs.length; i++) {
+        prodId.push(getLs[i].id);
+    };
+    
+    let contactProd = {contact, prodId};
+
+    console.log(JSON.stringify({
+            contact, 
+            prodId
+        }));
+console.log()
+    let reponseAPI = fetch('http://localhost:3000/api/products/order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        body: JSON.stringify(contactProd)
+        })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log(data)
+        }).catch((error) => {
+            console.error(error)
+        })
+
+    // let result = await reponseAPI.json();
+    // console.log(result.message);
+}

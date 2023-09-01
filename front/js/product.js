@@ -35,18 +35,19 @@ function genererProduct(promise){
     }
 };
 
-//  Solution par Thomas (Tenter la solution proposer par le X via JS playground)
 
 const ajoutPanier = document.getElementById("addToCart");
 ajoutPanier.addEventListener("click", (addPanier));
 
-function addPanier() {
+function addPanier(e) {
     const couleur = document.getElementById("colors").value;
     const quantity = document.getElementById("quantity").value;
     if (quantity < 1 || quantity > 100) {
         alert("Veuillez choisir un  nombre entre 1 et 100 svp");
+        e.preventDefault();
     } else if (couleur === "") {
         alert("Veuillez choisir une couleur svp");
+        e.preventDefault();
     } else {
     const panier = {id : produit, couleur : couleur, quantity : parseInt(quantity)};
 
@@ -59,16 +60,19 @@ function addPanier() {
                 getLs[key].quantity = parseInt(element.quantity) + parseInt(quantity);
                 localStorage.setItem("panier", JSON.stringify(getLs));
                 update = true;
+                location.reload();  
             }
             });
             if (!update) {
                 getLs.push(panier);
                 localStorage.setItem("panier", JSON.stringify(getLs));
+                location.reload();  
             }
         }
         else {
             getLs = [];
             localStorage.setItem("panier", JSON.stringify(panier));
+            location.reload();  
         }
     }
 }; 
