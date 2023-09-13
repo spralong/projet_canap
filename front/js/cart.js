@@ -109,17 +109,6 @@ function genererPanier(data, produit) {
         divItemContentSettQuant.appendChild(itemQuantity);
         divItemContentSett.appendChild(divItemContentSettDel);
         divItemContentSettDel.appendChild(deleteElement);
-
-// 
-
-        // const lienConfirmation = document.createElement("a");
-        // lienConfirmation.href = './confirmation.html';
-
-        // const btnCommander = document.querySelector("cart__order__form");
-        // btnCommander.setAttribute("action", "./confirmation.html");
-        // btnCommander.appendChild(lienConfirmation);S
-        
-
 };
 
 //  fonction pour le calcul total des articles 
@@ -144,7 +133,7 @@ function calculQuantity () {
 };
 
 
-
+//  fonction pour le prix total des articles 
 function calculPrixTotal () {
     let totalPrice = document.getElementById('totalPrice');
     
@@ -166,7 +155,7 @@ function calculPrixTotal () {
     }
 }
 
-
+//  fonction pour le changer la quantité des articles 
 function changeQuantity() {
     let btn_qty = document.querySelectorAll('.itemQuantity');
     for (let d = 0; d < btn_qty.length; d++) {
@@ -180,7 +169,7 @@ function changeQuantity() {
 };
 
 
-//  Supp l'élément
+//   fonction pour supprimer l'élément
  function ExecDelete(targetId) {
     for (let d = 0; d < getLs.length; d++) {
         let itemId = getLs[d].id + getLs[d].couleur;
@@ -192,6 +181,7 @@ function changeQuantity() {
     }
 };
 
+//   fonction pour valider et envoyer le formulaire
 function validForm() {
     let formulaire = document.querySelector('#order');
 
@@ -208,7 +198,6 @@ function validForm() {
         allOk = allOk && testElement('city', 'ville', 'cityErrorMsg', myRegex, e);
         allOk = allOk && testElement('email', 'mail', 'emailErrorMsg', myRegexEmail, e);
 
-        // trouver la chemin de page conf !
         if (allOk == true) {
             postAPI();
             e.preventDefault();
@@ -216,6 +205,7 @@ function validForm() {
     })
 };
 
+//   fonction pour vérifier si les champs sont ok
 function testElement(elementName,elementTitle, elementErrorMsg, myRegex, e) {
     let myElement = document.getElementById(elementName);
     let ok = true
@@ -236,7 +226,9 @@ function testElement(elementName,elementTitle, elementErrorMsg, myRegex, e) {
     return ok;
 }
 
+//   fonction pour envoyer la requete à l'API
 function postAPI() {
+
     let contact = {
         firstName : `${firstName.value}`,
         lastName : `${lastName.value}`,
@@ -245,18 +237,13 @@ function postAPI() {
         email : `${email.value}`
     };
 
-    let prodId = [];
+    let products = [];
     for (let i = 0;i < getLs.length; i++) {
-        prodId.push(getLs[i].id);
+        products.push(getLs[i].id);
     };
     
-    let contactProd = {contact, prodId};
+    let contactProd = {contact, products};
 
-    console.log(JSON.stringify({
-            contact, 
-            prodId
-        }));
-console.log()
     let reponseAPI = fetch('http://localhost:3000/api/products/order', {
         method: 'POST',
         headers: {
@@ -266,11 +253,9 @@ console.log()
         })
         .then((res) => res.json())
         .then((data) => {
-            console.log(data)
-        }).catch((error) => {
+            window.location.href = `confirmation.html?id=${data.orderId}`;
+        })
+        .catch((error) => {
             console.error(error)
         })
-
-    // let result = await reponseAPI.json();
-    // console.log(result.message);
 }

@@ -39,6 +39,7 @@ function genererProduct(promise){
 const ajoutPanier = document.getElementById("addToCart");
 ajoutPanier.addEventListener("click", (addPanier));
 
+//   fonction pour ajouter un produit au panier
 function addPanier(e) {
     const couleur = document.getElementById("colors").value;
     const quantity = document.getElementById("quantity").value;
